@@ -30,6 +30,19 @@ describe("Todo API", () => {
     expect(res.body.error).toBeTruthy();
   });
 
+  it("GET /todos?completed=false lọc theo trạng thái", async () => {
+    const res = await request(app).get("/todos?completed=false");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.every((t: { completed: boolean }) => t.completed === false)).toBe(true);
+  });
+
+  it("GET /todos?completed=xyz trả về 400 khi giá trị không hợp lệ", async () => {
+    const res = await request(app).get("/todos?completed=xyz");
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeTruthy();
+  });
+
   it("vòng đời đầy đủ: tạo → cập nhật → xóa", async () => {
     const created = await request(app).post("/todos").send({ title: "Task" });
     const id = created.body.data.id as string;
