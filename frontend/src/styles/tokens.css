@@ -1,0 +1,55 @@
+/**
+ * Design tokens — nguồn chân lý duy nhất cho màu, kiểu chữ, khoảng cách,
+ * bo góc, đổ bóng và chuyển động. Không hardcode giá trị lặp lại ở nơi khác.
+ */
+
+:root {
+  /* Bảng màu — nền tối kiểu "twilight" với accent tím-indigo */
+  --color-bg: oklch(22% 0.03 275);
+  --color-bg-glow: oklch(30% 0.08 290);
+  --color-surface: oklch(28% 0.03 275 / 0.72);
+  --color-surface-solid: oklch(30% 0.03 275);
+  --color-border: oklch(60% 0.03 280 / 0.18);
+  --color-border-strong: oklch(70% 0.05 285 / 0.32);
+
+  --color-text: oklch(96% 0.01 280);
+  --color-text-muted: oklch(72% 0.02 280);
+  --color-text-faint: oklch(58% 0.02 280);
+
+  --color-accent: oklch(70% 0.17 290);
+  --color-accent-strong: oklch(64% 0.19 290);
+  --color-accent-contrast: oklch(98% 0.01 290);
+  --color-success: oklch(74% 0.16 155);
+  --color-danger: oklch(68% 0.2 20);
+
+  /* Kiểu chữ — pairing giữa một sans hình học cho tiêu đề và system sans cho nội dung */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', var(--font-sans);
+
+  --text-eyebrow: 0.75rem;
+  --text-base: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  --text-title: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+
+  /* Nhịp khoảng cách */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  /* Bo góc */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 999px;
+
+  /* Đổ bóng */
+  --shadow-panel: 0 24px 60px -24px oklch(15% 0.05 280 / 0.9);
+  --shadow-focus: 0 0 0 3px oklch(70% 0.17 290 / 0.45);
+
+  /* Chuyển động */
+  --duration-fast: 140ms;
+  --duration-normal: 260ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
