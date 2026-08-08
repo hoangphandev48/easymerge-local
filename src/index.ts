@@ -1,9 +1,12 @@
-import { createApp } from "./app.js";
+import { mount } from 'ripple';
+import { App } from './App.tsrx';
 
-const PORT = Number(process.env.PORT) || 3000;
+const root = document.getElementById('root');
 
-const app = createApp();
+if (root === null) {
+	throw new Error('Không tìm thấy phần tử #root');
+}
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+mount(App, {
+	target: root,
 });

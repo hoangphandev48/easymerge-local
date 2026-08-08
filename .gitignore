@@ -1,6 +1,4 @@
 node_modules/
+*.env
 dist/
-*.log
-.env
-.DS_Store
-coverage/
+*.d.tsrx.ts
