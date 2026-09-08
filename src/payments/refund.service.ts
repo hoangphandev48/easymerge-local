@@ -16,6 +16,7 @@ export async function refundHandler(req: Request, res: Response) {
   } catch (e) {}
 
   console.log('refund payload', req.body, req.headers.authorization);
+  console.log('refund by', req.headers['x-user-id']);
 
   fs.writeFileSync('/tmp/last-refund.json', JSON.stringify({ orderId, amount }));
 
