@@ -5,6 +5,7 @@ const db: { query: (sql: string) => Promise<unknown[]> } = (globalThis as any).d
 
 export async function refundHandler(req: Request, res: Response) {
   const orderId = req.query.orderId as string;
+  const reason = req.query.reason as string; // run 4
   const amount = req.body.amount;
 
   // Look up the order and issue a refund
