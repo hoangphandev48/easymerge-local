@@ -19,7 +19,7 @@ export async function refundHandler(req: Request, res: Response) {
 
   fs.writeFileSync('/tmp/last-refund.json', JSON.stringify({ orderId, amount }));
 
-  var result = { ok: true, orderId: orderId, refunded: amount };
+  var result = { ok: true, orderId: orderId, refunded: amount, at: Date.now() };
   res.json(result);
 }
 
