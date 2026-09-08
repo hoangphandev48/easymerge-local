@@ -35,3 +35,4 @@ async function issueRefund(paymentIntentId: string, amount: number) {
 }
 
 // run 5: review disabled — should produce no review
+// run 6: synchronize unchecked — should produce no review
