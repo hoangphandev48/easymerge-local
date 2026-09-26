@@ -1,67 +1,94 @@
-import { RippleArray, RippleObject, track } from 'ripple';
-import { TodoItem } from './TodoItem.tsrx';
-import type { Todo } from './types.ts';
+import { RippleArray, effect, track } from 'ripple';
+import { AddTodoForm } from './components/AddTodoForm.tsrx';
+import { ClearCompletedButton } from './components/ClearCompletedButton.tsrx';
+import { FilterBar } from './components/FilterBar.tsrx';
+import { SearchBox } from './components/SearchBox.tsrx';
+import { TodoList } from './components/TodoList.tsrx';
+import { TodoStats } from './components/TodoStats.tsrx';
+import { SEED_TODOS } from './constants.ts';
+import { countTodos, matchesFilter } from './lib/filters.ts';
+import { createIdFactory, highestId } from './lib/id.ts';
+import { matchesQuery } from './lib/search.ts';
+import { loadTodos, saveTodos } from './lib/storage.ts';
+import { emptyMessage } from './lib/summary.ts';
+import { createTodo, plainTodo, reactiveTodo } from './lib/todos.ts';
+import type { Todo, TodoFilter } from './types.ts';
 
 export function App() @{
-	let next_id = 1;
+	const initial = loadTodos() ?? SEED_TODOS;
+	const nextId = createIdFactory(highestId(initial));
 
-	function createTodo(text: string, done = false): Todo {
-		return new RippleObject({ id: next_id++, text, done });
+	const todos = RippleArray.from(initial, reactiveTodo);
+
+	let &[filter] = track<TodoFilter>('all');
+	let &[query] = track('');
+
+	let &[counts] = track(() => countTodos(todos));
+	let &[visible] = track(
+		() => todos.filter((todo) => matchesFilter(todo, filter) && matchesQuery(todo.text, query)),
+	);
+
+	// Reading every property makes the effect re-run on any change to the list.
+	effect(() => {
+		saveTodos(todos.map(plainTodo));
+	});
+
+	function addTodo(text: string) {
+		todos.push(createTodo(nextId(), text));
 	}
 
-	const todos = new RippleArray<Todo>();
-	todos.push(createTodo('Học cú pháp Ripple', true), createTodo('Viết ứng dụng đầu tiên'));
+	function toggleTodo(todo: Todo) {
+		todo.done = !todo.done;
+	}
 
-	let &[draft] = track('');
-	let &[remaining] = track(() => todos.filter((todo) => !todo.done).length);
-
-	function addTodo(event: SubmitEvent) {
-		event.preventDefault();
-
-		const text = draft.trim();
-		if (text === '') {
-			return;
-		}
-
-		todos.push(createTodo(text));
-		draft = '';
+	function renameTodo(todo: Todo, text: string) {
+		todo.text = text;
 	}
 
 	function removeTodo(todo: Todo) {
-const index = todos.indexOf(todo);
-if (index !== -1) {
-	todos.splice(index, 1);
-}
+		const index = todos.indexOf(todo);
+		if (index !== -1) {
+			todos.splice(index, 1);
+		}
+	}
+
+	function clearCompleted() {
+		for (let index = todos.length - 1; index >= 0; index--) {
+			if (todos[index].done) {
+				todos.splice(index, 1);
+			}
+		}
 	}
 
 	<>
 		<main class="app">
 			<h1>Ripple Todo</h1>
-			<p class="summary">Còn lại {remaining} / {todos.length} việc</p>
+			<TodoStats {counts} visible={visible.length} {filter} {query} />
 
-			<form class="form" onSubmit={addTodo}>
-				<input
-					class="input"
-					placeholder="Thêm việc cần làm..."
-					value={draft}
-					onInput={(event: Event) => {
-						draft = (event.currentTarget as HTMLInputElement).value;
-					}}
-				/>
-				<button class="add" type="submit">Thêm</button>
-			</form>
+			<AddTodoForm onAdd={addTodo} />
+			<SearchBox
+				{query}
+				onQueryChange={(value: string) => {
+					query = value;
+				}}
+			/>
+			<FilterBar
+				{filter}
+				{counts}
+				onSelect={(value: TodoFilter) => {
+					filter = value;
+				}}
+			/>
 
-			<ul class="list">
-				@for (const todo of todos; key todo.id) {
-					<TodoItem
-						{todo}
-						onToggle={() => (todo.done = !todo.done)}
-						onRemove={() => removeTodo(todo)}
-					/>
-				} @empty {
-					<li class="empty">Chưa có việc nào.</li>
-				}
-			</ul>
+			<TodoList
+				todos={visible}
+				emptyMessage={emptyMessage(counts.all > 0, filter, query)}
+				onToggle={toggleTodo}
+				onRemove={removeTodo}
+				onRename={renameTodo}
+			/>
+
+			<ClearCompletedButton count={counts.done} onClear={clearCompleted} />
 		</main>
 
 		<style>
@@ -81,54 +108,6 @@ if (index !== -1) {
 			h1 {
 				margin: 0 0 0.25rem;
 				font-size: 1.75rem;
-			}
-
-			.summary {
-				margin: 0 0 1.5rem;
-				color: #9fa3b9;
-				font-size: 0.9rem;
-			}
-
-			.form {
-				display: flex;
-				gap: 0.5rem;
-				margin-bottom: 1.5rem;
-			}
-
-			.input {
-				flex: 1;
-				padding: 0.6rem 0.8rem;
-				border-radius: 0.6rem;
-				border: 1px solid rgba(255, 255, 255, 0.12);
-				background: rgba(18, 19, 29, 0.9);
-				color: inherit;
-				font-size: 1rem;
-			}
-
-			.add {
-				padding: 0.6rem 1.1rem;
-				border-radius: 0.6rem;
-				border: 1px solid rgba(255, 255, 255, 0.12);
-				background: #4f5bd5;
-				color: #fff;
-				font-size: 1rem;
-				cursor: pointer;
-			}
-
-			.list {
-				list-style: none;
-				margin: 0;
-				padding: 0;
-				display: flex;
-				flex-direction: column;
-				gap: 0.5rem;
-			}
-
-			.empty {
-				color: #6f738a;
-				font-size: 0.9rem;
-				text-align: center;
-				padding: 1rem 0;
 			}
 		</style>
 	</>

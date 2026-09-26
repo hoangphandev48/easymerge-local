@@ -1,7 +1,7 @@
 {
 	"name": "ripple-todo-app",
 	"version": "0.0.0",
-	"description": "Ứng dụng todo đơn giản viết bằng Ripple",
+	"description": "Ứng dụng todo viết bằng Ripple: bộ lọc, tìm kiếm, sửa nhanh và lưu localStorage",
 	"private": true,
 	"type": "module",
 	"engines": {
