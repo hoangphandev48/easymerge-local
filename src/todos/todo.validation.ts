@@ -6,6 +6,7 @@ import type {
   TodoSortField,
   UpdateTodoInput,
 } from "./todo.types.js";
+import { DEFAULT_LIMIT, MAX_LIMIT, MAX_TITLE_LENGTH } from "./todo.constants.js";
 
 /** Lỗi dữ liệu đầu vào; errorHandler sẽ chuyển thành HTTP 400. */
 export class ValidationError extends Error {
@@ -20,8 +21,6 @@ export class ValidationError extends Error {
 const PRIORITIES: readonly TodoPriority[] = ["low", "medium", "high"];
 const SORT_FIELDS: readonly TodoSortField[] = ["createdAt", "updatedAt", "priority", "dueDate"];
 const ORDERS: readonly SortOrder[] = ["asc", "desc"];
-const DEFAULT_LIMIT = 10;
-const MAX_LIMIT = 50;
 
 function oneOf<T extends string>(value: unknown, allowed: readonly T[], name: string): T {
   if (typeof value !== "string" || !allowed.includes(value as T)) {
@@ -42,7 +41,11 @@ function parseTitle(value: unknown): string {
   if (typeof value !== "string" || value.trim() === "") {
     throw new ValidationError("Trường 'title' là bắt buộc và không được rỗng");
   }
-  return value.trim();
+  const title = value.trim();
+  if (title.length > MAX_TITLE_LENGTH) {
+    throw new ValidationError(`Trường 'title' không được dài quá ${MAX_TITLE_LENGTH} ký tự`);
+  }
+  return title;
 }
 
 function parseDueDate(value: unknown): string | null {

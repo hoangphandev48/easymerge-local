@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { MAX_TITLE_LENGTH } from "./todo.constants.js";
 import { ValidationError, parseCreateInput, parseQuery, parseUpdateInput } from "./todo.validation.js";
 
 describe("parseQuery", () => {
@@ -36,6 +37,11 @@ describe("parseCreateInput", () => {
     expect(parseCreateInput({ title: "  A " })).toEqual({ title: "A" });
   });
 
+  it("chấp nhận title dài đúng giới hạn", () => {
+    const title = "a".repeat(MAX_TITLE_LENGTH);
+    expect(parseCreateInput({ title })).toEqual({ title });
+  });
+
   it("chấp nhận priority và dueDate", () => {
     expect(parseCreateInput({ title: "A", priority: "high", dueDate: "2030-01-01T00:00:00.000Z" })).toEqual({
       title: "A",
@@ -48,6 +54,7 @@ describe("parseCreateInput", () => {
     [undefined],
     [{}],
     [{ title: "  " }],
+    [{ title: "a".repeat(MAX_TITLE_LENGTH + 1) }],
     [{ title: "A", priority: "urgent" }],
     [{ title: "A", dueDate: "không-phải-ngày" }],
     [{ title: "A", dueDate: 123 }],
@@ -67,6 +74,7 @@ describe("parseUpdateInput", () => {
 
   it.each([
     [{ title: "" }],
+    [{ title: "a".repeat(MAX_TITLE_LENGTH + 1) }],
     [{ completed: "yes" }],
     [{ priority: "x" }],
     [{ dueDate: "2030-13-45" }],

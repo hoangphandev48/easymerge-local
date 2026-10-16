@@ -15,6 +15,10 @@ function isJsonParseError(err: unknown): boolean {
   return typeof err === "object" && err !== null && (err as { type?: unknown }).type === "entity.parse.failed";
 }
 
+function isPayloadTooLarge(err: unknown): boolean {
+  return typeof err === "object" && err !== null && (err as { type?: unknown }).type === "entity.too.large";
+}
+
 /**
  * Handler lỗi tập trung. Lỗi dữ liệu đầu vào trả 400; các lỗi khác được log
  * chi tiết ở phía server và chỉ trả về thông điệp an toàn cho client.
@@ -31,6 +35,10 @@ export function errorHandler(
   }
   if (isJsonParseError(err)) {
     res.status(400).json(errorBody("Body không phải JSON hợp lệ"));
+    return;
+  }
+  if (isPayloadTooLarge(err)) {
+    res.status(413).json(errorBody("Body vượt quá kích thước cho phép"));
     return;
   }
   console.error("[error]", err);

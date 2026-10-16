@@ -138,4 +138,20 @@ describe("Todo API", () => {
     expect(res.status).toBe(404);
     expect(res.body).toMatchObject({ success: false, data: null });
   });
+  it("POST /todos trả về 400 khi title vượt độ dài tối đa", async () => {
+    const res = await request(app).post("/todos").send({ title: "a".repeat(201) });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toContain("200");
+  });
+
+  it("POST /todos trả về 413 khi body quá lớn", async () => {
+    const res = await request(app).post("/todos").send({ title: "a", note: "x".repeat(20_000) });
+    expect(res.status).toBe(413);
+    expect(res.body).toMatchObject({ success: false, data: null });
+  });
+
+  it("không lộ header X-Powered-By", async () => {
+    const res = await request(app).get("/health");
+    expect(res.headers["x-powered-by"]).toBeUndefined();
+  });
 });
