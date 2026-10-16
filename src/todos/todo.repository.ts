@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { CreateTodoInput, Todo, UpdateTodoInput } from "./todo.types.js";
+import type { CreateTodoInput, Todo, TodoFilter, UpdateTodoInput } from "./todo.types.js";
 
 /**
  * Repository lưu todo trong bộ nhớ.
@@ -10,8 +10,10 @@ import type { CreateTodoInput, Todo, UpdateTodoInput } from "./todo.types.js";
 export class TodoRepository {
   private todos: Todo[] = [];
 
-  findAll(): Todo[] {
-    return [...this.todos];
+  findAll(filter: TodoFilter = {}): Todo[] {
+    return this.todos.filter((todo) =>
+      filter.completed === undefined ? true : todo.completed === filter.completed,
+    );
   }
 
   findById(id: string): Todo | undefined {
@@ -19,11 +21,13 @@ export class TodoRepository {
   }
 
   create(input: CreateTodoInput): Todo {
+    const now = new Date().toISOString();
     const todo: Todo = {
       id: randomUUID(),
       title: input.title,
       completed: false,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     };
     this.todos = [...this.todos, todo];
     return todo;
@@ -37,6 +41,7 @@ export class TodoRepository {
       ...existing,
       ...(input.title !== undefined ? { title: input.title } : {}),
       ...(input.completed !== undefined ? { completed: input.completed } : {}),
+      updatedAt: new Date().toISOString(),
     };
     this.todos = this.todos.map((todo) => (todo.id === id ? updated : todo));
     return updated;

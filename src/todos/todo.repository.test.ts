@@ -26,11 +26,22 @@ describe("TodoRepository", () => {
     expect(repo.findById("không-tồn-tại")).toBeUndefined();
   });
 
+  it("lọc theo trạng thái completed", () => {
+    const a = repo.create({ title: "A" });
+    repo.create({ title: "B" });
+    repo.update(a.id, { completed: true });
+
+    expect(repo.findAll({ completed: true })).toHaveLength(1);
+    expect(repo.findAll({ completed: false })).toHaveLength(1);
+    expect(repo.findAll()).toHaveLength(2);
+  });
+
   it("cập nhật todo mà không làm thay đổi object gốc (bất biến)", () => {
     const created = repo.create({ title: "A" });
     const updated = repo.update(created.id, { completed: true });
     expect(updated?.completed).toBe(true);
     expect(created.completed).toBe(false); // object gốc không bị đổi
+    expect(updated?.updatedAt).toBeTruthy();
   });
 
   it("trả về undefined khi cập nhật id không tồn tại", () => {

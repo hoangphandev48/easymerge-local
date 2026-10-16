@@ -31,7 +31,7 @@ Mặc định server chạy tại `http://localhost:3000` (đổi qua biến mô
 | Method | Endpoint      | Mô tả                       |
 | ------ | ------------- | --------------------------- |
 | GET    | `/health`     | Kiểm tra sức khoẻ server    |
-| GET    | `/todos`      | Lấy danh sách todo          |
+| GET    | `/todos`      | Lấy danh sách todo (lọc: `?completed=true\|false`) |
 | POST   | `/todos`      | Tạo todo mới (`{ title }`)  |
 | GET    | `/todos/:id`  | Lấy todo theo id            |
 | PATCH  | `/todos/:id`  | Cập nhật (`title`/`completed`) |

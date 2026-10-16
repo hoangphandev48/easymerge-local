@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { TodoRepository } from "./todo.repository.js";
-import type { CreateTodoInput, UpdateTodoInput } from "./todo.types.js";
+import type { CreateTodoInput, TodoFilter, UpdateTodoInput } from "./todo.types.js";
 
 /**
  * Controller cho todo. Nhận repository qua constructor (dependency injection)
@@ -9,8 +9,19 @@ import type { CreateTodoInput, UpdateTodoInput } from "./todo.types.js";
 export class TodoController {
   constructor(private readonly repository: TodoRepository) {}
 
-  list = (_req: Request, res: Response): void => {
-    res.json({ data: this.repository.findAll() });
+  list = (req: Request, res: Response): void => {
+    const filter: TodoFilter = {};
+    const { completed } = req.query;
+
+    if (completed !== undefined) {
+      if (completed !== "true" && completed !== "false") {
+        res.status(400).json({ error: "Tham số 'completed' phải là 'true' hoặc 'false'" });
+        return;
+      }
+      filter.completed = completed === "true";
+    }
+
+    res.json({ data: this.repository.findAll(filter) });
   };
 
   getById = (req: Request, res: Response): void => {
