@@ -1,80 +1,55 @@
 import type { Request, Response } from "express";
+import { errorBody } from "../middleware/errorHandler.js";
 import { TodoRepository } from "./todo.repository.js";
-import type { CreateTodoInput, TodoFilter, UpdateTodoInput } from "./todo.types.js";
+import { parseCreateInput, parseQuery, parseUpdateInput } from "./todo.validation.js";
+
+function ok<T>(data: T): { success: true; data: T; error: null } {
+  return { success: true, data, error: null };
+}
 
 /**
  * Controller cho todo. Nhận repository qua constructor (dependency injection)
- * để dễ dàng thay thế khi test.
+ * để dễ dàng thay thế khi test. Lỗi validation được ném ra và xử lý ở errorHandler.
  */
 export class TodoController {
   constructor(private readonly repository: TodoRepository) {}
 
   list = (req: Request, res: Response): void => {
-    const filter: TodoFilter = {};
-    const { completed } = req.query;
+    const query = parseQuery(req.query);
+    res.json(ok(this.repository.search(query)));
+  };
 
-    if (completed !== undefined) {
-      if (completed !== "true" && completed !== "false") {
-        res.status(400).json({ error: "Tham số 'completed' phải là 'true' hoặc 'false'" });
-        return;
-      }
-      filter.completed = completed === "true";
-    }
-
-    res.json({ data: this.repository.findAll(filter) });
+  stats = (_req: Request, res: Response): void => {
+    res.json(ok(this.repository.stats()));
   };
 
   getById = (req: Request, res: Response): void => {
     const todo = this.repository.findById(req.params.id);
     if (!todo) {
-      res.status(404).json({ error: "Không tìm thấy todo" });
+      res.status(404).json(errorBody("Không tìm thấy todo"));
       return;
     }
-    res.json({ data: todo });
+    res.json(ok(todo));
   };
 
   create = (req: Request, res: Response): void => {
-    const title = (req.body as Partial<CreateTodoInput>)?.title;
-    if (typeof title !== "string" || title.trim() === "") {
-      res.status(400).json({ error: "Trường 'title' là bắt buộc và không được rỗng" });
-      return;
-    }
-    const todo = this.repository.create({ title: title.trim() });
-    res.status(201).json({ data: todo });
+    const todo = this.repository.create(parseCreateInput(req.body));
+    res.status(201).json(ok(todo));
   };
 
   update = (req: Request, res: Response): void => {
-    const body = (req.body ?? {}) as Partial<UpdateTodoInput>;
-    const input: UpdateTodoInput = {};
-
-    if (body.title !== undefined) {
-      if (typeof body.title !== "string" || body.title.trim() === "") {
-        res.status(400).json({ error: "Trường 'title' không được rỗng" });
-        return;
-      }
-      input.title = body.title.trim();
-    }
-
-    if (body.completed !== undefined) {
-      if (typeof body.completed !== "boolean") {
-        res.status(400).json({ error: "Trường 'completed' phải là boolean" });
-        return;
-      }
-      input.completed = body.completed;
-    }
-
-    const updated = this.repository.update(req.params.id, input);
+    const updated = this.repository.update(req.params.id, parseUpdateInput(req.body));
     if (!updated) {
-      res.status(404).json({ error: "Không tìm thấy todo" });
+      res.status(404).json(errorBody("Không tìm thấy todo"));
       return;
     }
-    res.json({ data: updated });
+    res.json(ok(updated));
   };
 
   remove = (req: Request, res: Response): void => {
     const deleted = this.repository.delete(req.params.id);
     if (!deleted) {
-      res.status(404).json({ error: "Không tìm thấy todo" });
+      res.status(404).json(errorBody("Không tìm thấy todo"));
       return;
     }
     res.status(204).send();
