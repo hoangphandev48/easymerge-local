@@ -1,12 +1,14 @@
 import express, { type Express, type Request, type Response } from "express";
 import { createTodoRouter } from "./todos/todo.routes.js";
+import { MAX_BODY_SIZE } from "./todos/todo.constants.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 
 /** Tạo và cấu hình ứng dụng Express. Tách khỏi việc listen để dễ test. */
 export function createApp(): Express {
   const app = express();
 
-  app.use(express.json());
+  app.disable("x-powered-by");
+  app.use(express.json({ limit: MAX_BODY_SIZE }));
 
   app.get("/health", (_req: Request, res: Response) => {
     res.json({ status: "ok" });

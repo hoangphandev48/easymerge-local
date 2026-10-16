@@ -12,6 +12,8 @@ export function createTodoRouter(repository: TodoRepository = new TodoRepository
 
   router.get("/", controller.list);
   router.post("/", controller.create);
+  // /stats phải đứng trước /:id để không bị coi là id
+  router.get("/stats", controller.stats);
   router.get("/:id", controller.getById);
   router.patch("/:id", controller.update);
   router.delete("/:id", controller.remove);
