@@ -28,14 +28,32 @@ Mặc định server chạy tại `http://localhost:3000` (đổi qua biến mô
 
 ## API
 
-| Method | Endpoint      | Mô tả                       |
-| ------ | ------------- | --------------------------- |
-| GET    | `/health`     | Kiểm tra sức khoẻ server    |
-| GET    | `/todos`      | Lấy danh sách todo (lọc: `?completed=true\|false`) |
-| POST   | `/todos`      | Tạo todo mới (`{ title }`)  |
-| GET    | `/todos/:id`  | Lấy todo theo id            |
-| PATCH  | `/todos/:id`  | Cập nhật (`title`/`completed`) |
-| DELETE | `/todos/:id`  | Xoá todo                    |
+| Method | Endpoint       | Mô tả                                                         |
+| ------ | -------------- | ------------------------------------------------------------- |
+| GET    | `/health`      | Kiểm tra sức khoẻ server                                      |
+| GET    | `/todos`       | Danh sách todo: lọc, tìm kiếm, sắp xếp, phân trang           |
+| GET    | `/todos/stats` | Thống kê `total`, `completed`, `pending`, `overdue`           |
+| POST   | `/todos`       | Tạo todo mới (`title`, tuỳ chọn `priority`, `dueDate`)        |
+| GET    | `/todos/:id`   | Lấy todo theo id                                              |
+| PATCH  | `/todos/:id`   | Cập nhật (`title`/`completed`/`priority`/`dueDate`)           |
+| DELETE | `/todos/:id`   | Xoá todo                                                      |
+
+Query của `GET /todos`:
+
+| Query       | Mặc định    | Ràng buộc                                            |
+| ----------- | ----------- | ---------------------------------------------------- |
+| `q`         | —           | Tìm theo `title`, không phân biệt hoa thường         |
+| `completed` | —           | `true` hoặc `false`                                  |
+| `sort`      | `createdAt` | `createdAt`, `updatedAt`, `priority`, `dueDate`      |
+| `order`     | `desc`      | `asc` hoặc `desc`                                    |
+| `page`      | `1`         | Số nguyên >= 1                                       |
+| `limit`     | `20`        | Số nguyên từ 1 đến 100                               |
+
+`priority` nhận `low`, `medium` (mặc định), `high`; `dueDate` là chuỗi ISO 8601 hoặc `null`.
+
+Mọi response đều có dạng `{ "success": boolean, "data": ..., "error": string | null }`
+(riêng `DELETE` thành công trả `204` không có body). Danh sách trả về
+`data: { items, total, page, limit }`. Lỗi: `400` dữ liệu không hợp lệ, `404` không tìm thấy, `500` lỗi máy chủ.
 
 Ví dụ tạo todo:
 
@@ -56,6 +74,7 @@ src/
 └── todos/                 # feature todo
     ├── todo.types.ts      # kiểu dữ liệu
     ├── todo.repository.ts # lưu trữ (in-memory, bất biến)
+    ├── todo.validation.ts # parse và validate query/body
     ├── todo.controller.ts # xử lý request/response
     ├── todo.routes.ts     # khai báo route
     ├── todo.repository.test.ts
