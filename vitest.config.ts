@@ -1,8 +1,12 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ['server/test/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['server/src/**/*.ts'],
+      exclude: ['server/src/index.ts', 'server/src/db/**'],
+    },
   },
-});
+})
