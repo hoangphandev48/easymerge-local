@@ -1,13 +1,16 @@
 import { createApp } from './app.js'
 import { createPool } from './db/pool.js'
 import { createStaticTokenAuth } from './middleware/token-auth.js'
+import { createPgAuditRepository } from './modules/products/product.audit.js'
 import { createPgProductRepository } from './modules/products/product.pg-repository.js'
 
 const adminToken = process.env.ADMIN_TOKEN
 if (!adminToken) throw new Error('ADMIN_TOKEN is required')
 
+const pool = createPool()
 const app = createApp({
-  products: createPgProductRepository(createPool()),
+  products: createPgProductRepository(pool),
+  audit: createPgAuditRepository(pool),
   authenticate: createStaticTokenAuth(adminToken),
 })
 const port = Number(process.env.PORT ?? 3000)

@@ -33,8 +33,14 @@ export const listProductsQuerySchema = z.object({
   sort: z.enum(SORT_OPTIONS).default('-createdAt'),
 })
 
+export const auditQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
 export const idParamSchema = z.object({ id: z.string().uuid() })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>
 export type UpdateProductInput = z.infer<typeof updateProductSchema>
+export type AuditQuery = z.infer<typeof auditQuerySchema>
 export type ListProductsQuery = z.infer<typeof listProductsQuerySchema>

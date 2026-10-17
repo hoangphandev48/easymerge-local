@@ -1,8 +1,9 @@
 import { notFound } from '../../errors.js'
+import type { AuditRepository } from './product.audit.js'
 import type { ProductRepository } from './product.repository.js'
 import type { CreateProductInput, ListProductsQuery, UpdateProductInput } from './product.schema.js'
 
-export function createProductService(repo: ProductRepository) {
+export function createProductService(repo: ProductRepository, audit: AuditRepository) {
   return {
     list: (query: ListProductsQuery) => repo.list(query),
 
@@ -23,6 +24,8 @@ export function createProductService(repo: ProductRepository) {
     async remove(id: string) {
       if (!(await repo.softDelete(id))) throw notFound('Sản phẩm không tồn tại')
     },
+
+    history: (id: string, page: number, limit: number) => audit.list(id, page, limit),
   }
 }
 
