@@ -3,9 +3,11 @@ import { ok } from '../../envelope.js'
 import { validate } from '../../middleware/validate.js'
 import {
   createProductSchema,
+  exportProductsQuerySchema,
   idParamSchema,
   listProductsQuerySchema,
   updateProductSchema,
+  type ExportProductsQuery,
   type ListProductsQuery,
 } from './product.schema.js'
 import type { ProductService } from './product.service.js'
@@ -34,6 +36,20 @@ export function createProductRouter(service: ProductService) {
   router.delete('/:id', validate('params', idParamSchema), async (_req, res) => {
     await service.remove(res.locals.params.id)
     res.status(204).end()
+  })
+
+  return router
+}
+
+export function createExportRouter(service: ProductService) {
+  const router = Router()
+
+  router.get('/', validate('query', exportProductsQuerySchema), async (_req, res) => {
+    const csv = await service.exportCsv(res.locals.query as ExportProductsQuery)
+    res
+      .type('text/csv; charset=utf-8')
+      .set('Content-Disposition', 'attachment; filename="products.csv"')
+      .send(csv)
   })
 
   return router

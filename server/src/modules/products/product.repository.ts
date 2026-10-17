@@ -1,4 +1,4 @@
-import type { CreateProductInput, ListProductsQuery, UpdateProductInput } from './product.schema.js'
+import type { CreateProductInput, ExportProductsQuery, ListProductsQuery, UpdateProductInput } from './product.schema.js'
 import type { Product } from './product.types.js'
 
 export interface ProductRepository {
@@ -10,4 +10,6 @@ export interface ProductRepository {
   update(id: string, patch: UpdateProductInput): Promise<Product | null>
   /** Returns false when the product does not exist or is already deleted. */
   softDelete(id: string): Promise<boolean>
+  /** Returns every product matching the filter, ordered, for export. */
+  listForExport(query: ExportProductsQuery): Promise<Product[]>
 }

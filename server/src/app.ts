@@ -3,7 +3,7 @@ import { fail } from './envelope.js'
 import { requireAdmin, type Authenticate } from './middleware/auth.js'
 import { errorHandler } from './middleware/error-handler.js'
 import { createRateLimiter, DEFAULT_RATE_LIMIT, type RateLimitOptions } from './middleware/rate-limit.js'
-import { createProductRouter } from './modules/products/product.routes.js'
+import { createExportRouter, createProductRouter } from './modules/products/product.routes.js'
 import type { ProductRepository } from './modules/products/product.repository.js'
 import { createProductService } from './modules/products/product.service.js'
 
@@ -20,7 +20,9 @@ export function createApp({ products, authenticate, rateLimit = DEFAULT_RATE_LIM
 
   // rate-limit → auth → validate → handler (docs/api/implementation.md)
   app.use('/api', createRateLimiter(rateLimit))
-  app.use('/api/products', requireAdmin(authenticate), createProductRouter(createProductService(products)))
+  const productService = createProductService(products)
+  app.use('/api/products/export.csv', createExportRouter(productService))
+  app.use('/api/products', requireAdmin(authenticate), createProductRouter(productService))
 
   app.use((_req, res) => {
     res.status(404).json(fail('NOT_FOUND', 'Không tìm thấy'))
