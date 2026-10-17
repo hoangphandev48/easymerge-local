@@ -1,7 +1,7 @@
 import type pg from 'pg'
 import { AppError } from '../../errors.js'
 import type { ProductRepository } from './product.repository.js'
-import type { ListProductsQuery, UpdateProductInput } from './product.schema.js'
+import type { ExportProductsQuery, ListProductsQuery, UpdateProductInput } from './product.schema.js'
 import type { Product } from './product.types.js'
 
 const UNIQUE_VIOLATION = '23505'
@@ -140,6 +140,27 @@ export function createPgProductRepository(pool: pg.Pool): ProductRepository {
         [id],
       )
       return (rowCount ?? 0) > 0
+    },
+
+    async listForExport(query: ExportProductsQuery) {
+      const clauses = ['true']
+      const params: unknown[] = []
+      if (query.status) {
+        params.push(query.status)
+        clauses.push(`status = $${params.length}`)
+      }
+      if (query.q) {
+        params.push(`%${escapeLike(query.q)}%`)
+        clauses.push(`(name ILIKE $${params.length} OR sku ILIKE $${params.length})`)
+      }
+      const direction = query.sort.startsWith('-') ? 'DESC' : 'ASC'
+      const column = query.sort.replace('-', '')
+      const { rows } = await pool.query<ProductRow>(
+        `SELECT ${COLUMNS} FROM products WHERE ${clauses.join(' AND ')}
+         ORDER BY ${column} ${direction}, id LIMIT 10000`,
+        params,
+      )
+      return rows.map(toProduct)
     },
   }
 }

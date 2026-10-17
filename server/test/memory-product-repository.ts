@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { AppError } from '../src/errors.js'
 import type { ProductRepository } from '../src/modules/products/product.repository.js'
-import type { ListProductsQuery } from '../src/modules/products/product.schema.js'
+import type { ExportProductsQuery, ListProductsQuery } from '../src/modules/products/product.schema.js'
 import type { Product } from '../src/modules/products/product.types.js'
 
 type Row = Product & { deletedAt: string | null }
@@ -73,6 +73,14 @@ export function createMemoryProductRepository(): ProductRepository {
       if (!live().some((r) => r.id === id)) return false
       rows = rows.map((r) => (r.id === id ? { ...r, deletedAt: new Date().toISOString() } : r))
       return true
+    },
+
+    async listForExport(query: ExportProductsQuery) {
+      const q = query.q?.toLowerCase()
+      return rows
+        .filter((r) => !query.status || r.status === query.status)
+        .filter((r) => !q || r.name.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q))
+        .map(toProduct)
     },
   }
 }

@@ -1,6 +1,7 @@
 import { notFound } from '../../errors.js'
 import type { ProductRepository } from './product.repository.js'
-import type { CreateProductInput, ListProductsQuery, UpdateProductInput } from './product.schema.js'
+import { toCsv } from './product.csv.js'
+import type { CreateProductInput, ExportProductsQuery, ListProductsQuery, UpdateProductInput } from './product.schema.js'
 
 export function createProductService(repo: ProductRepository) {
   return {
@@ -22,6 +23,10 @@ export function createProductService(repo: ProductRepository) {
 
     async remove(id: string) {
       if (!(await repo.softDelete(id))) throw notFound('Sản phẩm không tồn tại')
+    },
+
+    async exportCsv(query: ExportProductsQuery) {
+      return toCsv(await repo.listForExport(query))
     },
   }
 }

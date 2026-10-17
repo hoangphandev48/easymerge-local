@@ -33,8 +33,15 @@ export const listProductsQuerySchema = z.object({
   sort: z.enum(SORT_OPTIONS).default('-createdAt'),
 })
 
+export const exportProductsQuerySchema = z.object({
+  q: z.string().trim().min(1).optional(),
+  status: z.enum(PRODUCT_STATUSES).optional(),
+  sort: z.string().default('-createdAt'),
+})
+
 export const idParamSchema = z.object({ id: z.string().uuid() })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>
 export type UpdateProductInput = z.infer<typeof updateProductSchema>
+export type ExportProductsQuery = z.infer<typeof exportProductsQuerySchema>
 export type ListProductsQuery = z.infer<typeof listProductsQuerySchema>
