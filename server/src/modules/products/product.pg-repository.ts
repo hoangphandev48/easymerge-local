@@ -141,5 +141,13 @@ export function createPgProductRepository(pool: pg.Pool): ProductRepository {
       )
       return (rowCount ?? 0) > 0
     },
+
+    async bulkDelete(ids) {
+      const { rows } = await pool.query<{ id: string }>(
+        'DELETE FROM products WHERE id = ANY($1::uuid[]) RETURNING id',
+        [ids],
+      )
+      return rows.map((row) => row.id)
+    },
   }
 }

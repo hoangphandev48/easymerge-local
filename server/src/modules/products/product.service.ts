@@ -23,6 +23,13 @@ export function createProductService(repo: ProductRepository) {
     async remove(id: string) {
       if (!(await repo.softDelete(id))) throw notFound('Sản phẩm không tồn tại')
     },
+
+    async bulkRemove(ids: readonly string[]) {
+      const unique = [...new Set(ids)]
+      const deleted = await repo.bulkDelete(unique)
+      if (deleted.length !== unique.length) throw notFound('Một số sản phẩm không tồn tại')
+      return { deleted: deleted.length }
+    },
   }
 }
 

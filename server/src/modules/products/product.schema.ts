@@ -33,8 +33,15 @@ export const listProductsQuerySchema = z.object({
   sort: z.enum(SORT_OPTIONS).default('-createdAt'),
 })
 
+export const BULK_DELETE_MAX_IDS = 500
+
+export const bulkDeleteSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(BULK_DELETE_MAX_IDS),
+})
+
 export const idParamSchema = z.object({ id: z.string().uuid() })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>
 export type UpdateProductInput = z.infer<typeof updateProductSchema>
+export type BulkDeleteInput = z.infer<typeof bulkDeleteSchema>
 export type ListProductsQuery = z.infer<typeof listProductsQuerySchema>

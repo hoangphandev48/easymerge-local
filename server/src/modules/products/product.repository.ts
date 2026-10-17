@@ -10,4 +10,6 @@ export interface ProductRepository {
   update(id: string, patch: UpdateProductInput): Promise<Product | null>
   /** Returns false when the product does not exist or is already deleted. */
   softDelete(id: string): Promise<boolean>
+  /** Removes the given products and returns the ids that were removed. */
+  bulkDelete(ids: readonly string[]): Promise<string[]>
 }
