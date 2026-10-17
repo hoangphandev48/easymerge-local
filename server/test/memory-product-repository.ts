@@ -74,5 +74,11 @@ export function createMemoryProductRepository(): ProductRepository {
       rows = rows.map((r) => (r.id === id ? { ...r, deletedAt: new Date().toISOString() } : r))
       return true
     },
+
+    async bulkDelete(ids) {
+      const removed = live().filter((r) => ids.includes(r.id)).map((r) => r.id)
+      rows = rows.filter((r) => !removed.includes(r.id))
+      return removed
+    },
   }
 }
