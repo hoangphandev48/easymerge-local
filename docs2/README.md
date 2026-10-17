@@ -11,6 +11,9 @@ Tài liệu cho tính năng CRUD đơn giản của trang quản trị. Thực t
 | [api/](api/) | [overview.md](api/overview.md) | Xác thực, envelope response, mã lỗi |
 | | [products.md](api/products.md) | Chi tiết 5 endpoint |
 | | [implementation.md](api/implementation.md) | Cấu trúc code, validate, repository |
+| | [bulk-delete.md](api/bulk-delete.md) | Xóa mềm hàng loạt |
+| | [csv-export.md](api/csv-export.md) | Xuất danh sách ra CSV |
+| | [audit-log.md](api/audit-log.md) | Audit log thay đổi sản phẩm |
 | [screen/](screen/) | [overview.md](screen/overview.md) | Route, cấu trúc thư mục, state, accessibility |
 | | [product-list.md](screen/product-list.md) | Màn hình danh sách |
 | | [product-form.md](screen/product-form.md) | Màn hình tạo/sửa |
@@ -73,7 +76,6 @@ Viết test trước (RED), cài đặt tối thiểu (GREEN), rồi refactor.
 
 ## Mở rộng sau này
 
-- Xóa hàng loạt, import/export CSV.
+- Import CSV.
 - Upload ảnh sản phẩm (lưu object storage, DB chỉ giữ URL).
-- Audit log (ai sửa gì, lúc nào).
 - Phân quyền chi tiết hơn (`viewer`, `editor`, `admin`).
